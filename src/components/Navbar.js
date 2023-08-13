@@ -1,13 +1,11 @@
 import React, { Component } from "react";
-// import PropTypes from "prop-types";
 
 export class Navbar extends Component {
-//   static propTypes = {};
 
   render() {
     return (
       <div>
-        <nav className="navbar navbar-expand-lg bg-body-tertiary">
+        <nav className="navbar navbar-expand-lg navbar-dark bg-success">
           <div className="container-fluid">
             <a className="navbar-brand" href="/">
               NewsBuzz
