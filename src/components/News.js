@@ -1,11 +1,19 @@
 import React, { Component } from "react";
 import Newsitem from "./Newsitem.js";
-// import PropTypes from 'prop-types'
+import Spinner from "./Spinner.js";
+// import PropTypes from 'prop-types';
 
 export class News extends Component {
-  //   static propTypes = {}
+    static defaultProps = {
+      country: 'in',
+      pageSize: 12,
+      category: 'general'
+    }
+    // static PropTypes = {
+    //   country: PropTypes.string ,
+    //   pageSize: PropTypes.number
+    // }
   constructor() {
-    console.log("Hello");
     super();
     this.state = {
       articles: [],
@@ -15,52 +23,46 @@ export class News extends Component {
   }
   async componentDidMount(){
     try {
-      let url ="https://newsapi.org/v2/top-headlines?country=in&apiKey=e9db3275b76d4da594cdd2f46f3dd8d1&pageSize=20";
+      let url =`https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=e9db3275b76d4da594cdd2f46f3dd8d1&pageSize=${this.props.pageSize}`;
+      this.setState({loading:true})
       let data = await fetch(url);
       let parsedData = await data.json();
-      console.log(parsedData);
-      this.setState({articles: parsedData.articles,totalResults:parsedData.totalResults}) 
+      this.setState({articles: parsedData.articles,totalResults:parsedData.totalResults,loading:false}) 
     } catch (error) {
       alert("Something went wrong.Please try again later");
     }
   }
   handleNextClick= async()=>{
-    console.log("logging");
-    if (this.state.page + 1>Math.ceil(this.state.totalResults/20)){
-      
-    }
-    else{
-
       try {
-        let url =`https://newsapi.org/v2/top-headlines?country=in&apiKey=e9db3275b76d4da594cdd2f46f3dd8d1&page=${this.state.page + 1}&pageSize=20`;
+        let url =`https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=e9db3275b76d4da594cdd2f46f3dd8d1&page=${this.state.page + 1}&pageSize=${this.props.pageSize}`;
+        this.setState({loading:true})
         let data = await fetch(url);
         let parsedData = await data.json();
         console.log(parsedData);
         this.setState(
           {
-            page:this.state.page + 1,
-            articles:parsedData.articles
+           page:this.state.page + 1,
+            articles:parsedData.articles,
+            loading:false
           });
       } 
       catch (error) {
         alert("Something went wrong.Please try again later");
-      }
-
-    }
-      
-        
+      }      
       
   }
   handlePrevClick =async()=>{
     try {
-      let url =`https://newsapi.org/v2/top-headlines?country=in&apiKey=e9db3275b76d4da594cdd2f46f3dd8d1&page=${this.state.page - 1}&pageSize=20`;
+      let url =`https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=e9db3275b76d4da594cdd2f46f3dd8d1&page=${this.state.page - 1}&pageSize=${this.props.pageSize}`;
+      this.setState({loading:true});
       let data = await fetch(url);
       let parsedData = await data.json();
       console.log(parsedData);
       this.setState(
         {
           page:this.state.page - 1,
-          articles:parsedData.articles
+          articles:parsedData.articles,
+          loading:false
         });
     } 
     catch (error) {
@@ -72,9 +74,10 @@ export class News extends Component {
     return (
       <div>
         <div className="container my-3">
-          <h2>Top Headlines</h2>
+          <h2 className="text-center">NewsBuzz  -  Top Headlines</h2>
+          <div className="text-center">{this.state.loading===true?<Spinner/>:""}</div>
           <div className="row">
-            {this.state.articles.map((element) => {
+            {!this.state.loading && this.state.articles.map((element) => {
               return (
                 <div className="col-md-4" key={element.url}>
                   <Newsitem
@@ -90,7 +93,7 @@ export class News extends Component {
           </div>
           <div className="container d-flex justify-content-between">
                   <button type="button" disabled={this.state.page<=1} className="btn btn-success" onClick={this.handlePrevClick}>&larr; Previous</button>
-                  <button type="button" className="btn btn-success" onClick={this.handleNextClick} disabled={this.state.page + 1>Math.ceil(this.state.totalResults/20)}>Next &rarr;</button>
+                  <button type="button" className="btn btn-success" onClick={this.handleNextClick} disabled={this.state.page + 1>Math.ceil(this.state.totalResults/this.props.pageSize)}>Next &rarr;</button>
                   </div>
         </div>
       </div>
