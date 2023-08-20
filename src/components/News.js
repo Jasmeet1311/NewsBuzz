@@ -1,20 +1,15 @@
 import React, { Component } from "react";
 import Newsitem from "./Newsitem.js";
 import Spinner from "./Spinner.js";
-// import PropTypes from 'prop-types';
 
 export class News extends Component {
-  // static defaultProps = {
-  //   country: "in",
-  //   pageSize: 12,
-  //   category: "general",
-  // };
-  // static PropTypes = {
-  //   country: PropTypes.string ,
-  //   pageSize: PropTypes.number
-  // }
-  constructor() {
-    super();
+  capitalize = (string)=>{
+      let str = string.charAt(0).toUpperCase();
+      return str + string.slice(1);
+  }
+  constructor(props) {
+    super(props);
+    document.title = this.capitalize(this.props.category);
     this.state = {
       articles: [],
       loading: false,
@@ -23,15 +18,19 @@ export class News extends Component {
   }
   async updateNews(){
     try {
+        this.props.setProgress(10);
         const url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apikey=e9db3275b76d4da594cdd2f46f3dd8d1&page=${this.state.page}&pageSize=${this.props.pageSize}`;
         this.setState({ loading: true });
         let data = await fetch(url);
-        let parsedData = await data.json()
+        this.props.setProgress(30);
+        let parsedData = await data.json();
+        this.props.setProgress(70);
         this.setState({
             articles: parsedData.articles,
             totalResults: parsedData.totalResults,
             loading: false
         });
+        this.props.setProgress(100);
     
     } catch (error) {
       alert("Something went wrong.Please try again later");
@@ -60,26 +59,6 @@ export class News extends Component {
     await this.setState({ page: this.state.page + 1 });
     console.log(this.state.page);
     this.updateNews();
-    // try {
-    //   let url = `https://newsapi.org/v2/top-headlines?country=${
-    //     this.props.country
-    //   }&category=${
-    //     this.props.category
-    //   }&apiKey=e9db3275b76d4da594cdd2f46f3dd8d1&page=${
-    //     this.state.page + 1
-    //   }&pageSize=${this.props.pageSize}`;
-    //   this.setState({ loading: true });
-    //   let data = await fetch(url);
-    //   let parsedData = await data.json();
-    //   console.log(parsedData);
-    //   this.setState({
-    //     page: this.state.page + 1,
-    //     articles: parsedData.articles,
-    //     loading: false,
-    //   });
-    // } catch (error) {
-    //   alert("Something went wrong.Please try again later");
-    // }
 
   };
   handlePrevClick = async () => {
@@ -87,33 +66,13 @@ export class News extends Component {
     await this.setState({ page: this.state.page - 1 });
     console.log(this.state.page);
     this.updateNews();
-    // try {
-    //   let url = `https://newsapi.org/v2/top-headlines?country=${
-    //     this.props.country
-    //   }&category=${
-    //     this.props.category
-    //   }&apiKey=e9db3275b76d4da594cdd2f46f3dd8d1&page=${
-    //     this.state.page - 1
-    //   }&pageSize=${this.props.pageSize}`;
-    //   this.setState({ loading: true });
-    //   let data = await fetch(url);
-    //   let parsedData = await data.json();
-    //   console.log(parsedData);
-    //   this.setState({
-    //     page: this.state.page - 1,
-    //     articles: parsedData.articles,
-    //     loading: false,
-    //   });
-    // } catch (error) {
-    //   alert("Something went wrong.Please try again later");
-    // }
 
   };
   render() {
     return (
       <div>
         <div className="container my-3">
-          <h2 className="text-center">NewsBuzz - Top Headlines</h2>
+          <h2 className="text-center">NewsBuzz - Top {this.capitalize(this.props.category)} Headlines</h2>
           <div className="text-center">
             {this.state.loading === true ? <Spinner /> : ""}
           </div>
